@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Training artifacts
+*.pth
+*.pt
+*.ckpt
+
+# Media outputs
+*.mp4
+*.gif
+
+# Generated documents
+*.pdf
+
+# Logs and misc
+*.log
+
+# Project-specific generated folders
+DQN/cartpole_videos/
