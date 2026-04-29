@@ -2,8 +2,9 @@
 
 这是一个我在初学强化学习过程中逐步整理出来的小工程，主要用于记录和实践从表格方法到深度强化学习的入门内容。
 
-目前仓库包含两部分：
+目前仓库包含三部分：
 
+- `MAB/`：多臂老虎机问题的代码实验、图像结果与学习笔记
 - `Q-learning/`：基于 `FrozenLake` 的 Q-learning 练习与笔记
 - `DQN/`：基于 `CartPole` 的 DQN 练习、推理脚本与笔记
 
@@ -13,6 +14,16 @@
 
 ```text
 RL/
+├─ MAB/
+│  ├─ mab.py
+│  ├─ MAB学习笔记.md
+│  ├─ MAB学习笔记.pdf
+│  └─ figures/
+│     ├─ comparison.png
+│     ├─ epsilon_greedy.png
+│     ├─ decay_epsilon_greedy.png
+│     ├─ ucb.png
+│     └─ thompson_sampling.png
 ├─ Q-learning/
 │  ├─ FrozenLake.py
 │  ├─ FrozenLake_inference.py
@@ -28,7 +39,25 @@ RL/
 
 ## Included Content
 
-### 1. Q-learning
+### 1. Multi-Armed Bandit
+
+`MAB/` 目录主要包含：
+
+- `mab.py`
+  实现 Bernoulli Bandit 环境，以及 `epsilon-greedy`、衰减 `epsilon-greedy`、`UCB`、`Thompson Sampling` 四种策略
+- `MAB学习笔记.md`
+  记录自己对多臂老虎机问题的系统梳理，包括：
+  - 多臂老虎机的背景与探索/利用问题
+  - 奖励估计值的递推更新公式推导
+  - 累计懊悔值的定义与意义
+  - 四种经典 bandit 算法的核心思想
+  - 代码实现和实验结果分析
+- `MAB学习笔记.pdf`
+  Markdown 笔记导出的 PDF 版本，便于归档和阅读
+- `figures/`
+  保存实验生成的累计懊悔曲线图，包括单算法曲线和总对比图
+
+### 2. Q-learning
 
 `Q-learning/` 目录主要包含：
 
@@ -43,7 +72,7 @@ RL/
   - 价值为什么会呈现“从后往前传递”的感觉
   - `alpha`、`gamma`、`epsilon` 的作用
 
-### 2. DQN
+### 3. DQN
 
 `DQN/` 目录主要包含：
 
@@ -77,6 +106,21 @@ pip install -r requirements.txt
 
 ## How to Run
 
+### Multi-Armed Bandit
+
+运行多臂老虎机实验：
+
+```bash
+python MAB/mab.py
+```
+
+该脚本会：
+
+- 随机生成一个 `10` 臂 Bernoulli Bandit
+- 分别运行 `epsilon-greedy`、衰减 `epsilon-greedy`、`UCB`、`Thompson Sampling`
+- 输出各策略的累计懊悔值
+- 绘制累计懊悔曲线
+
 ### Q-learning
 
 训练：
@@ -109,12 +153,13 @@ python DQN/DQN_CartPole_interface.py
 
 - 这个仓库主要服务于个人学习过程，因此更强调“逐步理解”和“可回顾性”，而不是工程化封装。
 - 一些模型权重、录制视频、缓存文件等运行产物默认不会纳入 Git 跟踪。
-- 目前内容集中在 Q-learning 和 DQN，后续可能继续补充 Double DQN、PPO 等内容。
+- 目前内容已经覆盖多臂老虎机、Q-learning 和 DQN，整体学习路径也更完整了：先从 bandit 理解探索与利用，再过渡到带状态转移的强化学习。
 
 ## Future Work
 
 后面准备继续补充的方向：
 
+- contextual bandit
 - Double DQN
 - Dueling DQN
 - PPO
