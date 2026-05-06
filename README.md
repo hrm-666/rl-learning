@@ -2,9 +2,11 @@
 
 这是一个我在初学强化学习过程中逐步整理出来的小工程，主要用于记录和实践从表格方法到深度强化学习的入门内容。
 
-目前仓库包含三部分：
+目前仓库包含五部分：
 
 - `MAB/`：多臂老虎机问题的代码实验、图像结果与学习笔记
+- `Markov/`：马尔可夫过程、马尔可夫决策过程与蒙特卡洛估计相关代码和笔记
+- `Dynamic_programming/`：基于网格世界与 `FrozenLake` 的策略迭代、价值迭代练习
 - `Q-learning/`：基于 `FrozenLake` 的 Q-learning 练习与笔记
 - `DQN/`：基于 `CartPole` 的 DQN 练习、推理脚本与笔记
 
@@ -24,6 +26,14 @@ RL/
 │     ├─ decay_epsilon_greedy.png
 │     ├─ ucb.png
 │     └─ thompson_sampling.png
+├─ Markov/
+│  ├─ Mrp.py
+│  ├─ Monte_Carlo.py
+│  └─ Markov_Notes.md
+├─ Dynamic_programming/
+│  ├─ Frozen_Lake.py
+│  ├─ policy_based.py
+│  └─ value_based.py
 ├─ Q-learning/
 │  ├─ FrozenLake.py
 │  ├─ FrozenLake_inference.py
@@ -57,7 +67,29 @@ RL/
 - `figures/`
   保存实验生成的累计懊悔曲线图，包括单算法曲线和总对比图
 
-### 2. Q-learning
+### 2. Markov
+
+`Markov/` 目录主要包含：
+
+- `Mrp.py`
+  使用矩阵形式求解马尔可夫奖励过程（MRP）的状态价值，并演示回报的递推计算
+- `Monte_Carlo.py`
+  构造一个简单 MDP，演示采样生成轨迹、用蒙特卡洛方法估计状态价值，以及计算状态动作对的占用度量
+- `Markov_Notes.md`
+  记录自己对马尔可夫性质、MRP、MDP、贝尔曼方程、蒙特卡洛估计和最优策略等概念的理解
+
+### 3. Dynamic Programming
+
+`Dynamic_programming/` 目录主要包含：
+
+- `Frozen_Lake.py`
+  基于 `FrozenLake-v1` 环境查看状态转移结构，并用策略迭代求解最优策略和状态价值
+- `policy_based.py`
+  在悬崖漫步（Cliff Walking）环境上手动实现策略迭代，包括策略评估与策略提升
+- `value_based.py`
+  在同一环境上实现价值迭代，并由最优价值函数导出贪心策略
+
+### 4. Q-learning
 
 `Q-learning/` 目录主要包含：
 
@@ -72,7 +104,7 @@ RL/
   - 价值为什么会呈现“从后往前传递”的感觉
   - `alpha`、`gamma`、`epsilon` 的作用
 
-### 3. DQN
+### 5. DQN
 
 `DQN/` 目录主要包含：
 
@@ -121,6 +153,40 @@ python MAB/mab.py
 - 输出各策略的累计懊悔值
 - 绘制累计懊悔曲线
 
+### Markov
+
+MRP 解析计算示例：
+
+```bash
+python Markov/Mrp.py
+```
+
+MDP 采样、蒙特卡洛估值与占用度量示例：
+
+```bash
+python Markov/Monte_Carlo.py
+```
+
+### Dynamic Programming
+
+查看 `FrozenLake` 的转移结构并运行策略迭代：
+
+```bash
+python Dynamic_programming/Frozen_Lake.py
+```
+
+在悬崖漫步环境上运行策略迭代：
+
+```bash
+python Dynamic_programming/policy_based.py
+```
+
+在悬崖漫步环境上运行价值迭代：
+
+```bash
+python Dynamic_programming/value_based.py
+```
+
 ### Q-learning
 
 训练：
@@ -153,13 +219,14 @@ python DQN/DQN_CartPole_interface.py
 
 - 这个仓库主要服务于个人学习过程，因此更强调“逐步理解”和“可回顾性”，而不是工程化封装。
 - 一些模型权重、录制视频、缓存文件等运行产物默认不会纳入 Git 跟踪。
-- 目前内容已经覆盖多臂老虎机、Q-learning 和 DQN，整体学习路径也更完整了：先从 bandit 理解探索与利用，再过渡到带状态转移的强化学习。
+- 目前内容已经覆盖多臂老虎机、马尔可夫过程 / 决策过程、动态规划、Q-learning 和 DQN，整体学习路径更完整：先从 bandit 理解探索与利用，再进入 MDP 与价值函数，随后过渡到动态规划、时序差分和深度强化学习。
 
 ## Future Work
 
 后面准备继续补充的方向：
 
 - contextual bandit
+- SARSA
 - Double DQN
 - Dueling DQN
 - PPO
