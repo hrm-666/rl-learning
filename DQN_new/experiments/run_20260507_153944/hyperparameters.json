@@ -1,0 +1,14 @@
+{
+  "env_name": "CartPole-v1",
+  "learning_rate": 0.002,
+  "num_episodes": 500,
+  "hidden_dim": 128,
+  "gamma": 0.98,
+  "epsilon": 0.01,
+  "target_update": 10,
+  "buffer_size": 10000,
+  "minimal_size": 500,
+  "batch_size": 64,
+  "random_seed": 0,
+  "device": "cpu"
+}
