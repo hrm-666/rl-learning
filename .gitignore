@@ -34,3 +34,6 @@ Thumbs.db
 
 # Project-specific generated folders
 DQN/cartpole_videos/
+
+cleanrl
+runs
