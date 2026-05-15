@@ -16,10 +16,11 @@ def evaluate(
     device: torch.device = torch.device("cpu"),
     epsilon: float = 0.05,
     capture_video: bool = True,
+    dqn_type: str = "vanilla",
 ):
     envs = gym.vector.SyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
     try:
-        model = Model(envs).to(device)
+        model = Model(envs, dqn_type=dqn_type).to(device)
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
 

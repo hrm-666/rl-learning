@@ -44,7 +44,7 @@ class Args:
     exploration_fraction: float = 0.5
     learning_starts: int = 10000
     train_frequency: int = 10
-    dqn_type: str = "double" #可选项：vanilla, double, dueling
+    dqn_type: str = "dueling" #可选项：vanilla, double,dueling
 
 
 def make_env(env_id, seed, idx, capture_video, run_name):
@@ -61,19 +61,42 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     return thunk
 
 class QNetwork(nn.Module):
-    def __init__(self, env):
+    def __init__(self, env, dqn_type="vanilla"):
         super().__init__()
-        self.network = nn.Sequential(
-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 128),
+        self.dqn_type = dqn_type
+        obs_dim = np.array(env.single_observation_space.shape).prod()
+        action_dim = env.single_action_space.n
+
+        self.feature = nn.Sequential(
+            nn.Linear(obs_dim, 128),
             nn.ReLU(),
             nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(128, env.single_action_space.n)
         )
 
+        if dqn_type == "dueling":
+            self.value_stream = nn.Sequential(
+                nn.Linear(128, 128),
+                nn.ReLU(),
+                nn.Linear(128, 1)
+            )
+            self.advantage_stream = nn.Sequential(
+                nn.Linear(128, 128),
+                nn.ReLU(),
+                nn.Linear(128, action_dim)
+            )
+        else:
+            self.q_head = nn.Linear(128, action_dim)
     def forward(self, x):
-        return self.network(x)
-    
+        features = self.feature(x)
+
+        if self.dqn_type == "dueling":
+            value = self.value_stream(features)
+            advantage = self.advantage_stream(features)
+            q_values = value + (advantage - advantage.mean(dim=1, keepdim=True))
+        else:
+            q_values = self.q_head(features)
+        return q_values
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
@@ -115,9 +138,9 @@ if __name__ == "__main__":
     )
     assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
 
-    q_network = QNetwork(envs).to(device)
+    q_network = QNetwork(envs, dqn_type=args.dqn_type).to(device)
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
-    target_q_network = QNetwork(envs).to(device)
+    target_q_network = QNetwork(envs, dqn_type=args.dqn_type).to(device)
     target_q_network.load_state_dict(q_network.state_dict())
 
     #经验回放缓冲区
@@ -172,19 +195,13 @@ if __name__ == "__main__":
                     if args.dqn_type == "double":
                         next_q_values = q_network(data.next_observations)
                         next_actions = torch.argmax(next_q_values, dim=1, keepdim=True)
-                        target_max = target_q_network(data.next_observations).gather(1, next_actions).squeeze()
-                        td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
-
-                        #next_online_q_mean = next_q_values.mean(dim=1)
-                        target_max_mean = target_max.mean().item()
-                        target_q_mean = td_target.mean().item()
-                    elif args.dqn_type == "vanilla": 
+                        target_max = target_q_network(data.next_observations).gather(1, next_actions).squeeze(1)
+                    else: 
                         target_max, _ = target_q_network(data.next_observations).max(dim=1)
-                        td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
-
-                        target_max_mean = target_max.mean().item()
-                        target_q_mean = td_target.mean().item()
-                old_val = q_network(data.observations).gather(1, data.actions.long()).squeeze()
+                    td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
+                    target_max_mean = target_max.mean().item()
+                    target_q_mean = td_target.mean().item()
+                old_val = q_network(data.observations).gather(1, data.actions.long()).squeeze(1)
                 loss = F.mse_loss(old_val, td_target)
 
                 if global_step % 100 == 0:
@@ -216,11 +233,12 @@ if __name__ == "__main__":
             model_path,
             make_env,
             args.env_id,
-            eval_episodes=10,
+            eval_episodes=1000,
             run_name=f"{run_name}-eval",
             Model=QNetwork,
             device=device,
             epsilon=args.end_e,
+            dqn_type=args.dqn_type,
         )
         for idx, episodic_return in enumerate(episodic_returns):
             writer.add_scalar("eval/episodic_return", episodic_return, idx)
